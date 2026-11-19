@@ -47,11 +47,17 @@
     animationId: null,
     lastProcessTime: 0,
     lastFrequency: null,
+    activeStringIndex: -1,
+    autoCandidateIndex: -1,
+    autoCandidateCount: 0,
     customNotes: ["E2", "A2", "D3", "G3", "B3", "E4"],
     isRunning: false
   };
 
   const stringNames = ["LOW E", "A", "D", "G", "B", "HIGH E"];
+  const AUTO_STRING_CONFIRM_FRAMES = 2;
+  const AUTO_STRING_MAX_DISTANCE_CENTS = 260;
+  const AUTO_STRING_MIN_CLARITY = 0.70;
 
   function setMessage(message, isError = false) {
     elements.permissionMessage.textContent = message;
@@ -81,7 +87,7 @@
     }
   }
 
-  function renderStrings(activeIndex = (state.mode === "manual" ? state.selectedString : -1)) {
+  function renderStrings(activeIndex = (state.mode === "manual" ? state.selectedString : state.activeStringIndex)) {
     elements.stringList.innerHTML = "";
     state.notes.forEach((note, index) => {
       const button = document.createElement("button");
@@ -92,6 +98,8 @@
       button.innerHTML = `<span class="string-number">${6 - index}</span><span class="string-note">${escapeHtml(note.replace(/\d+$/, ""))}</span><span class="string-name">${stringNames[index]}</span>`;
       button.addEventListener("click", () => {
         state.mode = "manual";
+        state.activeStringIndex = -1;
+        resetAutoStringCandidate();
         state.selectedString = index;
         updateModeUI();
         renderStrings();
@@ -122,7 +130,11 @@
     elements.manualMode.classList.toggle("active", !auto);
     elements.autoMode.setAttribute("aria-pressed", String(auto));
     elements.manualMode.setAttribute("aria-pressed", String(!auto));
-    elements.stringModeHint.textContent = auto ? "Tap a string to switch to manual" : "Manual mode · choose a string below";
+    if (elements.stringModeHint) {
+      elements.stringModeHint.textContent = auto
+        ? "Tap a string to switch to manual"
+        : "Manual mode · choose a string below";
+    }
     updateTargetText();
   }
 
@@ -149,6 +161,7 @@
     }
     state.lastFrequency = null;
     state.selectedString = 0;
+    resetAutoStringDetection(true);
     resetReadout();
     renderStrings();
     updateTargetText();
@@ -173,23 +186,81 @@
     return 1200 * Math.log2(frequency / targetFrequency);
   }
 
-  function findNearestString(frequency) {
-    let bestIndex = 0;
+  function findNearestStringMatch(frequency) {
+    let bestIndex = -1;
     let bestDistance = Infinity;
+
     state.notes.forEach((note, index) => {
       const targetFrequency = Tuning.frequencyFromNote(note, state.referenceA4);
+      if (!Number.isFinite(targetFrequency) || targetFrequency <= 0) return;
+
       const distance = Math.abs(centsBetween(frequency, targetFrequency));
       if (distance < bestDistance) {
         bestDistance = distance;
         bestIndex = index;
       }
     });
-    return bestIndex;
+
+    return { index: bestIndex, distanceCents: bestDistance };
+  }
+
+  function findNearestString(frequency) {
+    return findNearestStringMatch(frequency).index;
+  }
+
+  function resetAutoStringCandidate() {
+    state.autoCandidateIndex = -1;
+    state.autoCandidateCount = 0;
+  }
+
+  function resetAutoStringDetection(clearActive = false) {
+    resetAutoStringCandidate();
+    if (clearActive) state.activeStringIndex = -1;
+    if (state.mode === "auto") highlightString(state.activeStringIndex);
+  }
+
+  function confirmAutoString(frequency, clarity = 1) {
+    if (state.mode !== "auto") return;
+
+    if (!Number.isFinite(clarity) || clarity < AUTO_STRING_MIN_CLARITY) {
+      resetAutoStringCandidate();
+      return;
+    }
+
+    const match = findNearestStringMatch(frequency);
+    if (
+      match.index < 0 ||
+      !Number.isFinite(match.distanceCents) ||
+      match.distanceCents > AUTO_STRING_MAX_DISTANCE_CENTS
+    ) {
+      resetAutoStringCandidate();
+      return;
+    }
+
+    if (match.index === state.autoCandidateIndex) {
+      state.autoCandidateCount += 1;
+    } else {
+      state.autoCandidateIndex = match.index;
+      state.autoCandidateCount = 1;
+    }
+
+    // Confirm a string only after two consecutive, confident pitch readings.
+    if (
+      state.autoCandidateCount >= AUTO_STRING_CONFIRM_FRAMES &&
+      state.activeStringIndex !== match.index
+    ) {
+      state.activeStringIndex = match.index;
+      highlightString(match.index);
+    }
   }
 
   function updatePitchUI(frequency) {
     if (!Number.isFinite(frequency) || frequency <= 0) return;
-    const stringIndex = state.mode === "auto" ? findNearestString(frequency) : state.selectedString;
+
+    const match = findNearestStringMatch(frequency);
+    const stringIndex = state.mode === "auto" ? match.index : state.selectedString;
+    if (stringIndex < 0 || stringIndex >= state.notes.length) return;
+
     const target = state.notes[stringIndex];
     const targetFrequency = Tuning.frequencyFromNote(target, state.referenceA4);
     const midi = 69 + 12 * Math.log2(frequency / state.referenceA4);
@@ -212,11 +283,6 @@
     elements.centsValue.innerHTML = `${cents > 0 ? "+" : ""}${cents.toFixed(0)} <small>cents</small>`;
     elements.stringValue.textContent = `${6 - stringIndex} · ${target}`;
     elements.stringValue.style.color = status === "good" ? "var(--green)" : "var(--text)";
-
-    if (state.mode === "auto") {
-      state.selectedString = stringIndex;
-      highlightString(stringIndex);
-    }
   }
 
   function processAudio(timestamp) {
@@ -234,6 +300,7 @@
     });
 
     if (!result) {
+      resetAutoStringCandidate();
       return;
     }
 
@@ -243,6 +310,7 @@
       frequency = state.lastFrequency * 0.35 + frequency * 0.65;
     }
     state.lastFrequency = frequency;
+    confirmAutoString(frequency, result.clarity);
     updatePitchUI(frequency);
   }
 
@@ -315,6 +383,8 @@
     state.audioContext = null;
     state.buffer = null;
     state.lastFrequency = null;
+    resetAutoStringDetection(true);
+    renderStrings();
     elements.micButton.classList.remove("is-running");
     elements.micButtonLabel.textContent = "Start tuning";
     elements.micIndicator.classList.remove("is-on");
@@ -411,12 +481,18 @@
 
     elements.autoMode.addEventListener("click", () => {
       state.mode = "auto";
+      resetAutoStringCandidate();
       updateModeUI();
+      renderStrings();
       if (state.lastFrequency) updatePitchUI(state.lastFrequency);
-      else renderStrings(-1);
     });
     elements.manualMode.addEventListener("click", () => {
+      if (state.activeStringIndex >= 0) {
+        state.selectedString = state.activeStringIndex;
+      }
       state.mode = "manual";
+      state.activeStringIndex = -1;
+      resetAutoStringCandidate();
       updateModeUI();
       renderStrings(state.selectedString);
       if (state.lastFrequency) updatePitchUI(state.lastFrequency);
