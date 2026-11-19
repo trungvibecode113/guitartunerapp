@@ -81,12 +81,12 @@
     }
   }
 
-  function renderStrings(activeIndex = state.selectedString) {
+  function renderStrings(activeIndex = (state.mode === "manual" ? state.selectedString : -1)) {
     elements.stringList.innerHTML = "";
     state.notes.forEach((note, index) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `string-button${index === activeIndex ? " active" : ""}`;
+      button.className = `string-button string-${6 - index}${index === activeIndex ? " active" : ""}`;
       button.setAttribute("aria-label", `String ${6 - index}, target ${note}`);
       button.setAttribute("aria-pressed", String(index === activeIndex));
       button.innerHTML = `<span class="string-number">${6 - index}</span><span class="string-note">${escapeHtml(note.replace(/\d+$/, ""))}</span><span class="string-name">${stringNames[index]}</span>`;
@@ -128,10 +128,10 @@
 
   function updateTargetText() {
     if (state.mode === "auto") {
-      elements.targetLabel.textContent = "AUTO DETECTION · PLAY ANY STRING";
+      elements.targetLabel.textContent = `${state.tuningName.toUpperCase()} · AUTO`;
       elements.targetNote.textContent = state.lastFrequency ? `TARGET ${state.notes[findNearestString(state.lastFrequency)].toUpperCase()}` : "TARGET —";
     } else {
-      elements.targetLabel.textContent = `MANUAL MODE · STRING ${6 - state.selectedString}`;
+      elements.targetLabel.textContent = `${state.tuningName.toUpperCase()} · STRING ${6 - state.selectedString}`;
       elements.targetNote.textContent = `TARGET ${state.notes[state.selectedString].toUpperCase()}`;
     }
   }
@@ -157,7 +157,7 @@
   function resetReadout() {
     elements.detectedNote.textContent = "--";
     elements.detectedNote.className = "detected-note";
-    elements.tuningStatus.textContent = state.isRunning ? "Listening for a note" : "Pluck a string";
+    elements.tuningStatus.textContent = "Start tuning by playing any string";
     elements.tuningStatus.className = "tuning-status";
     elements.signalBadge.textContent = state.isRunning ? "LISTENING" : "WAITING";
     elements.signalBadge.className = "signal-badge";
@@ -200,7 +200,7 @@
     const statusText = status === "good" ? "In tune" : status === "low" ? "Too low · tune up" : "Too high · tune down";
 
     elements.detectedNote.textContent = detected.replace(/(-?\d+)$/, "");
-    elements.detectedNote.className = `detected-note ${status}`;
+    elements.detectedNote.className = `detected-note ${status} is-visible`;
     elements.tuningStatus.textContent = statusText;
     elements.tuningStatus.className = `tuning-status ${status}`;
     elements.targetNote.textContent = `TARGET ${target.toUpperCase()}`;

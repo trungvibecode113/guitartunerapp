@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b1118">
-  <meta name="description" content="A simple, accurate chromatic guitar tuner with preset and custom tunings.">
+  <meta name="theme-color" content="#191a1e">
+  <meta name="description" content="A chromatic guitar tuner with custom and preset tuning for six-string guitar.">
   <title>Guitar Tuner</title>
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
@@ -21,7 +21,7 @@
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none"><path d="M8 3v7.2a4 4 0 1 0 8 0V3M12 14.2V21M5 6h3M16 6h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="10.2" r="1.2" fill="currentColor"/></svg>
         </span>
-        <span><strong>Guitar Tuner</strong><small>PRECISION TUNING</small></span>
+        <span><strong>Guitar Tuner</strong><small>6-STRING CHROMATIC TUNER</small></span>
       </a>
       <div class="topbar-right">
         <span id="mic-indicator" class="mic-indicator"><i></i> MIC OFF</span>
@@ -32,20 +32,11 @@
     </header>
 
     <main>
-      <section class="intro-row">
-        <div>
-          <p class="eyebrow">YOUR SOUND, IN TUNE</p>
-          <h1>Make every note <span>count.</span></h1>
-          <p class="intro-copy">A responsive chromatic tuner for your 6-string guitar.</p>
-        </div>
-        <div class="live-pill"><span></span> REAL-TIME</div>
-      </section>
-
       <section class="control-card" aria-label="Tuning controls">
         <div class="control-heading">
           <div>
-            <p class="section-kicker">01 / TUNING</p>
-            <h2>Choose your tuning</h2>
+            <p class="section-kicker">TUNING PRESET</p>
+            <h1>Choose your tuning</h1>
           </div>
           <button id="custom-button" class="text-button" type="button">CUSTOM <span>＋</span></button>
         </div>
@@ -66,27 +57,35 @@
       <section class="tuner-card" aria-label="Live tuner">
         <div class="tuner-card-top">
           <div>
-            <p class="section-kicker">02 / LIVE TUNER</p>
-            <p id="target-label" class="target-label">AUTO DETECTION · PLAY ANY STRING</p>
+            <p class="section-kicker">LIVE TUNER</p>
+            <p id="target-label" class="target-label">E STANDARD · AUTO</p>
           </div>
           <span id="signal-badge" class="signal-badge">WAITING</span>
         </div>
 
-        <div class="note-display" aria-live="polite" aria-atomic="true">
-          <div id="detected-note" class="detected-note">--</div>
-          <div id="tuning-status" class="tuning-status">Pluck a string</div>
-          <div id="target-note" class="target-note">TARGET —</div>
-        </div>
-
         <div class="meter" aria-label="Pitch deviation meter">
-          <div class="meter-scale"><span>♭ FLAT</span><span>CENTER</span><span>SHARP ♯</span></div>
+          <div class="meter-scale"><span>♭</span><span>CENTER</span><span>♯</span></div>
           <div class="meter-track" id="meter-track">
             <div class="meter-center"></div>
             <div class="meter-ticks" id="meter-ticks" aria-hidden="true"></div>
             <div id="meter-needle" class="meter-needle"><span></span></div>
           </div>
-          <div class="meter-values"><span>−50¢</span><span>0¢</span><span>+50¢</span></div>
+          <div class="meter-values"><span>−50 cents</span><span>0</span><span>+50 cents</span></div>
         </div>
+
+        <div class="note-display" aria-live="polite" aria-atomic="true">
+          <div id="detected-note" class="detected-note">--</div>
+          <div id="tuning-status" class="tuning-status">Start tuning by playing any string</div>
+          <div id="target-note" class="target-note">TARGET —</div>
+        </div>
+
+        <section class="strings-section" aria-label="Guitar string selector">
+          <div class="headstock-stage">
+            <img class="headstock-image" src="./assets/headstock.svg" alt="Illustration of a six-string guitar headstock">
+            <div id="string-list" class="string-list" aria-label="Six guitar strings"></div>
+          </div>
+          <div class="strings-legend"><span>LOW E · STRING 6</span><span>HIGH E · STRING 1</span></div>
+        </section>
 
         <div class="readouts">
           <div class="readout"><span>FREQUENCY</span><strong id="frequency-value">— <small>Hz</small></strong></div>
@@ -94,7 +93,7 @@
           <div class="readout"><span>TARGET STRING</span><strong id="string-value">—</strong></div>
         </div>
 
-        <div id="permission-message" class="permission-message" role="status">Allow microphone access to start tuning. Your audio is processed on this device.</div>
+        <div id="permission-message" class="permission-message" role="status">Microphone is off. Start tuning and play one string at a time.</div>
         <button id="mic-button" class="mic-button" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-3 0h6"/></svg>
           <span id="mic-button-label">Start tuning</span>
@@ -102,20 +101,8 @@
         </button>
       </section>
 
-      <section class="strings-section">
-        <div class="strings-heading">
-          <div>
-            <p class="section-kicker">03 / YOUR GUITAR</p>
-            <h2>String targets</h2>
-          </div>
-          <p id="string-mode-hint">Tap a string to tune it manually</p>
-        </div>
-        <div id="string-list" class="string-list" aria-label="Six guitar strings"></div>
-        <div class="string-order-note"><span>THICKEST</span><span>6 STRINGS</span><span>THINNEST</span></div>
-      </section>
-
       <footer class="app-footer">
-        <span>GUITAR TUNER <b>·</b> MVP 0.1</span>
+        <span>GUITAR TUNER <b>·</b> MVP 0.2</span>
         <span>Audio stays on your device</span>
       </footer>
     </main>

@@ -1,4 +1,4 @@
-# Guitar Tuner — MVP 0.1
+# Guitar Tuner — MVP 0.2 — Headstock Tuner UI
 
 A mobile-first, browser-based chromatic tuner for a 6-string guitar. It uses the device microphone and processes audio locally in the browser.
 
@@ -8,7 +8,8 @@ A mobile-first, browser-based chromatic tuner for a 6-string guitar. It uses the
 - E Standard, Eb Standard, D Standard, Drop D, Drop C, C Standard, DADGAD, Open D and Open G presets
 - Custom tuning editor for all six strings
 - Auto string detection and Manual string selection
-- Frequency (Hz), pitch deviation (cents), and a tuning meter
+- Frequency (Hz), pitch deviation (cents), and a grid-style tuning meter
+- Headstock-inspired string selector with six individually selectable string buttons
 - A4 reference pitch setting (432 / 440 / 442 Hz)
 - PWA manifest and basic offline app-shell caching
 
@@ -45,4 +46,3 @@ Microphone access requires a secure context. `localhost` is supported for local 
 2. Save custom tunings in local storage.
 3. Add string-specific lock and noise-gate controls.
 4. Add chord finder as a separate feature after the tuner is stable.
-# guitartunerapp

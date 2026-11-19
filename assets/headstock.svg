@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 1040" fill="none">
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0.15">
+      <stop offset="0" stop-color="#4d2114"/>
+      <stop offset=".18" stop-color="#8e4728"/>
+      <stop offset=".48" stop-color="#572717"/>
+      <stop offset=".78" stop-color="#9b4f2b"/>
+      <stop offset="1" stop-color="#3e1c13"/>
+    </linearGradient>
+    <linearGradient id="woodLight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c27a4b" stop-opacity=".72"/>
+      <stop offset=".45" stop-color="#8d4528" stop-opacity=".15"/>
+      <stop offset="1" stop-color="#29140e" stop-opacity=".55"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset=".2" stop-color="#aeb8c0"/>
+      <stop offset=".42" stop-color="#f1f5f7"/>
+      <stop offset=".7" stop-color="#69747d"/>
+      <stop offset="1" stop-color="#e0e5e8"/>
+    </linearGradient>
+    <linearGradient id="metalSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#313b43"/>
+      <stop offset=".45" stop-color="#eff3f5"/>
+      <stop offset=".7" stop-color="#8c969d"/>
+      <stop offset="1" stop-color="#252d34"/>
+    </linearGradient>
+    <linearGradient id="neck" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#32180f"/>
+      <stop offset=".5" stop-color="#8a4326"/>
+      <stop offset="1" stop-color="#2c150e"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-20%" width="160%" height="150%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <clipPath id="headClip">
+      <path d="M320 28 C270 28 229 49 194 84 C174 104 152 109 128 113 L145 207 L164 310 L174 610 C177 688 198 729 224 766 C241 791 251 829 251 874 L251 1018 L389 1018 L389 874 C389 829 399 791 416 766 C442 729 463 688 466 610 L476 310 L495 207 L512 113 C488 109 466 104 446 84 C411 49 370 28 320 28Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- soft shadow -->
+  <path d="M320 28 C270 28 229 49 194 84 C174 104 152 109 128 113 L145 207 L164 310 L174 610 C177 688 198 729 224 766 C241 791 251 829 251 874 L251 1018 L389 1018 L389 874 C389 829 399 791 416 766 C442 729 463 688 466 610 L476 310 L495 207 L512 113 C488 109 466 104 446 84 C411 49 370 28 320 28Z" fill="#000" opacity=".55" filter="url(#shadow)" transform="translate(0 10)"/>
+
+  <!-- neck / fretboard extension -->
+  <path d="M249 835 L391 835 L391 1040 L249 1040Z" fill="url(#neck)" stroke="#d7c7a6" stroke-width="7"/>
+  <path d="M261 850 L379 850 L379 1040 L261 1040Z" stroke="#1c100c" stroke-width="5" opacity=".8"/>
+  <path d="M267 885 H373 M265 927 H375 M263 970 H377 M261 1013 H379" stroke="#d2b58d" stroke-opacity=".55" stroke-width="3"/>
+
+  <!-- headstock body -->
+  <path d="M320 28 C270 28 229 49 194 84 C174 104 152 109 128 113 L145 207 L164 310 L174 610 C177 688 198 729 224 766 C241 791 251 829 251 874 L251 1018 L389 1018 L389 874 C389 829 399 791 416 766 C442 729 463 688 466 610 L476 310 L495 207 L512 113 C488 109 466 104 446 84 C411 49 370 28 320 28Z" fill="url(#wood)" stroke="#e8dfce" stroke-width="13" stroke-linejoin="round"/>
+  <path d="M320 45 C272 45 237 65 204 98 C183 118 166 122 145 127 L160 213 L178 312 L188 609 C191 677 208 718 238 758 C257 785 266 824 266 874 L266 1004 L374 1004 L374 874 C374 824 383 785 402 758 C432 718 449 677 452 609 L462 312 L480 213 L495 127 C474 122 457 118 436 98 C403 65 368 45 320 45Z" stroke="#f4e8d1" stroke-opacity=".9" stroke-width="5"/>
+  <g clip-path="url(#headClip)">
+    <rect x="120" y="20" width="400" height="1000" fill="url(#woodLight)"/>
+    <g stroke="#e19a68" stroke-opacity=".13" stroke-width="3">
+      <path d="M205 55 C190 270 230 520 218 810"/><path d="M225 50 C215 300 250 580 239 840"/>
+      <path d="M250 35 C244 300 268 580 258 900"/><path d="M280 30 C275 250 290 620 280 1010"/>
+      <path d="M350 30 C365 270 335 610 351 1010"/><path d="M380 34 C397 290 372 590 390 880"/>
+      <path d="M415 60 C430 300 400 580 420 810"/>
+    </g>
+    <g stroke="#32170e" stroke-opacity=".25" stroke-width="2">
+      <path d="M195 180 C260 165 380 190 460 160"/><path d="M185 400 C265 385 390 410 455 390"/>
+      <path d="M190 620 C260 600 390 630 450 610"/><path d="M230 760 C280 740 360 755 410 740"/>
+    </g>
+  </g>
+
+  <!-- dark truss cover -->
+  <path d="M276 765 C278 730 294 704 320 704 C346 704 362 730 364 765 L357 899 L283 899Z" fill="#21130f" stroke="#6f3d29" stroke-width="5"/>
+  <circle cx="320" cy="728" r="8" fill="url(#metal)"/><circle cx="320" cy="866" r="8" fill="url(#metal)"/>
+
+  <!-- tuning machine barrels and keys -->
+  <g stroke="#1b2228" stroke-width="5" stroke-linejoin="round">
+    <!-- left barrels -->
+    <path d="M162 235 H94 Q80 235 80 250 V280 Q80 295 94 295 H164Z" fill="url(#metalSide)"/>
+    <path d="M170 420 H82 Q68 420 68 437 V467 Q68 484 82 484 H172Z" fill="url(#metalSide)"/>
+    <path d="M178 605 H94 Q80 605 80 622 V652 Q80 669 94 669 H180Z" fill="url(#metalSide)"/>
+    <!-- right barrels -->
+    <path d="M478 235 H546 Q560 235 560 250 V280 Q560 295 546 295 H476Z" fill="url(#metalSide)"/>
+    <path d="M470 420 H558 Q572 420 572 437 V467 Q572 484 558 484 H468Z" fill="url(#metalSide)"/>
+    <path d="M462 605 H546 Q560 605 560 622 V652 Q560 669 546 669 H460Z" fill="url(#metalSide)"/>
+  </g>
+  <g fill="url(#metal)" stroke="#4a555d" stroke-width="5">
+    <ellipse cx="88" cy="265" rx="12" ry="33"/><ellipse cx="76" cy="452" rx="12" ry="34"/><ellipse cx="88" cy="637" rx="12" ry="33"/>
+    <ellipse cx="552" cy="265" rx="12" ry="33"/><ellipse cx="564" cy="452" rx="12" ry="34"/><ellipse cx="552" cy="637" rx="12" ry="33"/>
+  </g>
+
+  <!-- tuning posts -->
+  <g fill="url(#metal)" stroke="#68727a" stroke-width="4">
+    <circle cx="190" cy="265" r="27"/><circle cx="181" cy="452" r="27"/><circle cx="190" cy="637" r="27"/>
+    <circle cx="450" cy="265" r="27"/><circle cx="459" cy="452" r="27"/><circle cx="450" cy="637" r="27"/>
+  </g>
+  <g fill="#f5f7f7" opacity=".72">
+    <circle cx="181" cy="255" r="8"/><circle cx="172" cy="442" r="8"/><circle cx="181" cy="627" r="8"/>
+    <circle cx="441" cy="255" r="8"/><circle cx="450" cy="442" r="8"/><circle cx="441" cy="627" r="8"/>
+  </g>
+  <g stroke="#dce3e6" stroke-width="4" stroke-linecap="round" opacity=".82">
+    <path d="M190 265 L277 1008"/><path d="M181 452 L299 1008"/><path d="M190 637 L317 1008"/>
+    <path d="M450 265 L363 1008"/><path d="M459 452 L341 1008"/><path d="M450 637 L323 1008"/>
+  </g>
+  <path d="M252 1002 H388" stroke="#e6d6bd" stroke-width="10"/>
+</svg>
