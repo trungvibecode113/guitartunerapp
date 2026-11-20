@@ -24,7 +24,7 @@
         <span><strong>Guitar Tuner</strong><small>6-STRING CHROMATIC TUNER</small></span>
       </a>
       <div class="topbar-right">
-        <span id="mic-indicator" class="mic-indicator"><i></i> MIC OFF</span>
+        <button id="mic-indicator" class="mic-indicator mic-toggle" type="button" aria-label="Microphone off. Tap to enable." aria-pressed="false" title="Microphone off · tap to enable"><i></i> MIC OFF</button>
         <button id="settings-button" class="icon-button" type="button" aria-label="Open settings" title="Settings">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.7a3.3 3.3 0 1 0 0 6.6 3.3 3.3 0 0 0 0-6.6Z"/><path d="m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 1 1-2.4-2.4l.1-.1a1.7 1.7 0 0 0-1.2-2.9H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 1 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 1 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z"/></svg>
         </button>
@@ -93,16 +93,11 @@
           <div class="readout"><span>TARGET STRING</span><strong id="string-value">—</strong></div>
         </div>
 
-        <div id="permission-message" class="permission-message" role="status">Microphone is off. Start tuning and play one string at a time.</div>
-        <button id="mic-button" class="mic-button" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-3 0h6"/></svg>
-          <span id="mic-button-label">Start tuning</span>
-          <span class="button-arrow">→</span>
-        </button>
+        <div id="permission-message" class="permission-message" role="status">Requesting microphone access…</div>
       </section>
 
       <footer class="app-footer">
-        <span>GUITAR TUNER <b>·</b> MVP 0.2</span>
+        <span>GUITAR TUNER <b>·</b> MVP 0.3</span>
         <span>Audio stays on your device</span>
       </footer>
     </main>
