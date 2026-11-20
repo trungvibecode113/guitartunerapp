@@ -4,6 +4,14 @@
   const $ = (selector) => document.querySelector(selector);
 
   const elements = {
+    tunerView: $("#tuner-view"),
+    chordifyView: $("#chordify-view"),
+    navTuner: $("#nav-tuner"),
+    navChordify: $("#nav-chordify"),
+    topbarRight: $(".topbar-right"),
+    chordifyForm: $("#chordify-form"),
+    youtubeUrl: $("#youtube-url"),
+    chordifyFeedback: $("#chordify-feedback"),
     tuningSelect: $("#tuning-select"),
     customButton: $("#custom-button"),
     autoMode: $("#auto-mode"),
@@ -51,7 +59,9 @@
     customNotes: ["E2", "A2", "D3", "G3", "B3", "E4"],
     isRunning: false,
     isStarting: false,
-    audioUnlockHandler: null
+    audioUnlockHandler: null,
+    activeView: "tuner",
+    startAttempt: 0
   };
 
   const stringNames = ["LOW E", "A", "D", "G", "B", "HIGH E"];
@@ -62,6 +72,79 @@
   function setMessage(message, isError = false) {
     elements.permissionMessage.textContent = message;
     elements.permissionMessage.classList.toggle("error", isError);
+  }
+
+  function switchView(view) {
+    if (view !== "tuner" && view !== "chordify") return;
+    if (state.activeView === view) return;
+
+    state.activeView = view;
+    const showTuner = view === "tuner";
+
+    elements.tunerView.hidden = !showTuner;
+    elements.chordifyView.hidden = showTuner;
+    elements.navTuner.classList.toggle("active", showTuner);
+    elements.navChordify.classList.toggle("active", !showTuner);
+    elements.navTuner.setAttribute("aria-pressed", String(showTuner));
+    elements.navChordify.setAttribute("aria-pressed", String(!showTuner));
+
+    // The tuner microphone is stopped while the user is on Chordify.
+    elements.micIndicator.hidden = !showTuner;
+    elements.settingsButton.hidden = !showTuner;
+    elements.topbarRight.classList.toggle("is-empty", !showTuner);
+
+    if (showTuner) {
+      if (!state.isRunning && !state.isStarting) startTuner();
+    } else if (state.isRunning || state.isStarting) {
+      stopTuner();
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function getYouTubeVideoId(value) {
+    try {
+      const url = new URL(value.trim());
+      const host = url.hostname.toLowerCase().replace(/^www\\./, "");
+      let videoId = "";
+
+      if (host === "youtu.be") {
+        videoId = url.pathname.split("/").filter(Boolean)[0] || "";
+      } else if (
+        host === "youtube.com" ||
+        host === "m.youtube.com" ||
+        host === "music.youtube.com"
+      ) {
+        if (url.pathname === "/watch") {
+          videoId = url.searchParams.get("v") || "";
+        } else {
+          const parts = url.pathname.split("/").filter(Boolean);
+          if (["shorts", "embed", "live"].includes(parts[0])) videoId = parts[1] || "";
+        }
+      }
+
+      return /^[a-zA-Z0-9_-]{11}$/.test(videoId) ? videoId : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function handleChordifySubmit(event) {
+    event.preventDefault();
+    const value = elements.youtubeUrl.value.trim();
+    const videoId = getYouTubeVideoId(value);
+
+    elements.chordifyFeedback.classList.remove("error", "success");
+    if (!videoId) {
+      elements.chordifyFeedback.textContent = "Please enter a valid YouTube video link.";
+      elements.chordifyFeedback.classList.add("error");
+      elements.youtubeUrl.focus();
+      return;
+    }
+
+    elements.chordifyFeedback.textContent =
+      "YouTube link accepted. Chord recognition is not connected yet; this is the frontend preview.";
+    elements.chordifyFeedback.classList.add("success");
   }
 
   function updateMicIndicator() {
@@ -384,7 +467,8 @@
   }
 
   async function startTuner() {
-    if (state.isRunning || state.isStarting) return;
+    if (state.isRunning || state.isStarting || state.activeView !== "tuner") return;
+    const startAttempt = ++state.startAttempt;
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setMessage("Microphone access requires HTTPS or localhost and a supported browser. Tap MIC OFF to retry after opening a secure URL.", true);
@@ -403,6 +487,13 @@
           autoGainControl: false
         }
       });
+
+      if (startAttempt !== state.startAttempt || state.activeView !== "tuner") {
+        stream.getTracks().forEach((track) => track.stop());
+        state.isStarting = false;
+        return;
+      }
+
       state.stream = stream;
 
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -464,6 +555,7 @@
   }
 
   async function stopTuner() {
+    state.startAttempt += 1;
     state.isRunning = false;
     state.isStarting = false;
     if (state.animationId) cancelAnimationFrame(state.animationId);
@@ -547,6 +639,10 @@
   }
 
   function bindEvents() {
+    elements.navTuner.addEventListener("click", () => switchView("tuner"));
+    elements.navChordify.addEventListener("click", () => switchView("chordify"));
+    elements.chordifyForm.addEventListener("submit", handleChordifySubmit);
+
     elements.tuningSelect.addEventListener("change", () => {
       if (elements.tuningSelect.value === "custom") {
         if (state.presetId !== "custom") state.customNotes = [...state.notes];
