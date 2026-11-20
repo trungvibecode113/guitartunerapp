@@ -236,7 +236,7 @@
   function resetReadout() {
     elements.detectedNote.textContent = "--";
     elements.detectedNote.className = "detected-note";
-    elements.tuningStatus.textContent = "Start tuning by playing any string";
+    elements.tuningStatus.textContent = "Play any string to detect its pitch";
     elements.tuningStatus.className = "tuning-status";
     elements.signalBadge.textContent = state.isRunning ? "LISTENING" : "WAITING";
     elements.signalBadge.className = "signal-badge";
