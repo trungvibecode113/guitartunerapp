@@ -32,6 +32,7 @@
     </header>
 
     <main>
+      <div id="tuner-view" class="app-view">
       <section class="control-card" aria-label="Tuning controls">
         <div class="control-heading">
           <div>
@@ -100,7 +101,64 @@
         <span>GUITAR TUNER <b>·</b> MVP 0.3</span>
         <span>Audio stays on your device</span>
       </footer>
+      </div>
+
+      <section id="chordify-view" class="app-view chordify-view" aria-labelledby="chordify-title" hidden>
+        <div class="chordify-heading">
+          <p class="section-kicker">SONG CHORDS</p>
+          <h1 id="chordify-title">Chordify</h1>
+          <p>Find the chords behind your favorite songs.</p>
+        </div>
+
+        <form id="chordify-form" class="chordify-input-card">
+          <label class="field-label" for="youtube-url">YOUTUBE VIDEO LINK</label>
+          <div class="youtube-input-wrap">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 7.2a2.8 2.8 0 0 0-2-2C18.2 4.7 12 4.7 12 4.7s-6.2 0-8 .5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 1.5 12 29 29 0 0 0 2 16.8a2.8 2.8 0 0 0 2 2c1.8.5 8 .5 8 .5s6.2 0 8-.5a2.8 2.8 0 0 0 2-2 29 29 0 0 0 .5-4.8 29 29 0 0 0-.5-4.8Z"/><path d="m10 8.8 5.2 3.2-5.2 3.2V8.8Z"/></svg>
+            <input id="youtube-url" type="url" inputmode="url" autocomplete="url" placeholder="Paste a YouTube link..." aria-label="YouTube video link" required>
+          </div>
+          <button class="chordify-submit" type="submit">
+            <span>Find chords</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+          </button>
+          <p class="chordify-helper">Paste a YouTube video URL to prepare a song analysis.</p>
+        </form>
+
+        <section class="chord-results-card" aria-labelledby="chord-results-title">
+          <div class="chord-results-heading">
+            <div>
+              <p class="section-kicker">YOUR SONG</p>
+              <h2 id="chord-results-title">Chord timeline</h2>
+            </div>
+            <span class="coming-soon-pill">IN DEVELOPMENT</span>
+          </div>
+          <div id="chordify-feedback" class="chordify-feedback" role="status" aria-live="polite">
+            Your submitted song will appear here.
+          </div>
+          <div class="chord-empty-state">
+            <div class="chord-empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13M9 8l12-2M5 19a3 3 0 1 0 0 0.01M17 16a3 3 0 1 0 0 .01"/></svg>
+            </div>
+            <h3>Chord results will appear here</h3>
+            <p>The chord recognition engine will be connected in a later update. This screen is the frontend preview.</p>
+          </div>
+        </section>
+      </section>
     </main>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button id="nav-tuner" class="bottom-nav-item active" type="button" aria-pressed="true">
+        <span class="bottom-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M8 3v7a4 4 0 0 0 8 0V3M12 14v7M5 6h3m8 0h3"/></svg>
+        </span>
+        <span class="bottom-nav-label">Guitar Tuner</span>
+      </button>
+      <button id="nav-chordify" class="bottom-nav-item" type="button" aria-pressed="false">
+        <span class="bottom-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13M9 8l12-2M5 19a3 3 0 1 0 0 .01M17 16a3 3 0 1 0 0 .01"/></svg>
+        </span>
+        <span class="bottom-nav-label">Chordify</span>
+      </button>
+    </nav>
   </div>
 
   <dialog id="custom-dialog" class="custom-dialog">
