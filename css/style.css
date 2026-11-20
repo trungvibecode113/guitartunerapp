@@ -353,3 +353,102 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--teal); out
   .bottom-nav-item { gap: 7px; padding: 5px 6px; font-size: 10px; }
   .bottom-nav-icon { flex-basis: 39px; width: 39px; height: 39px; }
 }
+
+
+/* YouTube song player */
+.chord-player-card {
+  margin-top: 14px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  background: rgba(42,44,50,.88);
+  box-shadow: 0 10px 30px rgba(0,0,0,.14);
+}
+.chord-player-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 13px;
+}
+.chord-player-heading .section-kicker { margin-bottom: 4px; }
+.chord-player-heading h2 { margin: 0; font-size: 17px; letter-spacing: -.35px; }
+.youtube-video-id { margin: 5px 0 0; color: #858a95; font-size: 8px; font-weight: 800; letter-spacing: .85px; }
+.change-video-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(56,224,207,.22);
+  border-radius: 10px;
+  color: var(--teal);
+  background: rgba(56,224,207,.055);
+  font-size: 10px;
+  font-weight: 800;
+}
+.change-video-button svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.youtube-player-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 13px;
+  background: #08090b;
+  box-shadow: 0 9px 28px rgba(0,0,0,.25);
+}
+.youtube-player-frame iframe {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.youtube-player-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+.youtube-source-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #a5a9b2;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .85px;
+}
+.youtube-source-label i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff6262;
+  box-shadow: 0 0 0 4px rgba(255,98,98,.09);
+}
+.youtube-player-footer a {
+  color: var(--teal);
+  font-size: 10px;
+  font-weight: 750;
+  text-decoration: none;
+}
+.youtube-player-footer a:hover { text-decoration: underline; }
+.youtube-player-hint {
+  margin: 10px 0 0;
+  color: #777d88;
+  font-size: 9px;
+  line-height: 1.5;
+}
