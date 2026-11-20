@@ -11,6 +11,11 @@
     topbarRight: $(".topbar-right"),
     chordifyForm: $("#chordify-form"),
     youtubeUrl: $("#youtube-url"),
+    chordifyPlayerCard: $("#chord-player-card"),
+    youtubePlayer: $("#youtube-player"),
+    youtubeVideoId: $("#youtube-video-id"),
+    changeVideoButton: $("#change-video-button"),
+    openYoutubeLink: $("#open-youtube-link"),
     chordifyFeedback: $("#chordify-feedback"),
     tuningSelect: $("#tuning-select"),
     customButton: $("#custom-button"),
@@ -61,7 +66,8 @@
     isStarting: false,
     audioUnlockHandler: null,
     activeView: "tuner",
-    startAttempt: 0
+    startAttempt: 0,
+    activeVideoId: null
   };
 
   const stringNames = ["LOW E", "A", "D", "G", "B", "HIGH E"];
@@ -142,9 +148,35 @@
       return;
     }
 
+    state.activeVideoId = videoId;
+
+    // Use YouTube's privacy-enhanced embed host. Playback remains inside
+    // YouTube's official player and uses its native playback controls.
+    const embedUrl = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
+    embedUrl.searchParams.set("playsinline", "1");
+    embedUrl.searchParams.set("controls", "1");
+    embedUrl.searchParams.set("rel", "0");
+
+    elements.youtubePlayer.src = embedUrl.toString();
+    elements.youtubePlayer.title = `YouTube video player for video ${videoId}`;
+    elements.youtubeVideoId.textContent = `VIDEO ID · ${videoId}`;
+    elements.openYoutubeLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+
+    elements.chordifyForm.hidden = true;
+    elements.chordifyPlayerCard.hidden = false;
     elements.chordifyFeedback.textContent =
-      "YouTube link accepted. Chord recognition is not connected yet; this is the frontend preview.";
+      "Video loaded in the YouTube player. Chord recognition is the next development step.";
     elements.chordifyFeedback.classList.add("success");
+  }
+
+  function handleChangeVideo() {
+    // Stop and unload the previous embedded player when changing the song.
+    elements.youtubePlayer.src = "about:blank";
+    elements.chordifyPlayerCard.hidden = true;
+    elements.chordifyForm.hidden = false;
+    elements.chordifyFeedback.classList.remove("error", "success");
+    elements.chordifyFeedback.textContent = "Paste a YouTube link to load another song.";
+    elements.youtubeUrl.focus();
   }
 
   function updateMicIndicator() {
@@ -642,6 +674,7 @@
     elements.navTuner.addEventListener("click", () => switchView("tuner"));
     elements.navChordify.addEventListener("click", () => switchView("chordify"));
     elements.chordifyForm.addEventListener("submit", handleChordifySubmit);
+    elements.changeVideoButton.addEventListener("click", handleChangeVideo);
 
     elements.tuningSelect.addEventListener("change", () => {
       if (elements.tuningSelect.value === "custom") {
