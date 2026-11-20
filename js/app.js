@@ -105,7 +105,7 @@
   function getYouTubeVideoId(value) {
     try {
       const url = new URL(value.trim());
-      const host = url.hostname.toLowerCase().replace(/^www\\./, "");
+      const host = url.hostname.toLowerCase().replace(/^www\./, "");
       let videoId = "";
 
       if (host === "youtu.be") {
