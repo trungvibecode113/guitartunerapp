@@ -67,7 +67,8 @@
     audioUnlockHandler: null,
     activeView: "tuner",
     startAttempt: 0,
-    activeVideoId: null
+    activeVideoId: null,
+    youtubeNeedsReload: false
   };
 
   const stringNames = ["LOW E", "A", "D", "G", "B", "HIGH E"];
@@ -84,8 +85,17 @@
     if (view !== "tuner" && view !== "chordify") return;
     if (state.activeView === view) return;
 
+    const previousView = state.activeView;
     state.activeView = view;
     const showTuner = view === "tuner";
+
+    if (showTuner && previousView === "chordify" && state.activeVideoId && !elements.chordifyPlayerCard.hidden) {
+      // Unload the hidden YouTube iframe so its audio cannot leak into the tuner microphone.
+      elements.youtubePlayer.src = "about:blank";
+      state.youtubeNeedsReload = true;
+    } else if (!showTuner && previousView === "tuner" && state.youtubeNeedsReload && state.activeVideoId) {
+      mountYoutubePlayer(state.activeVideoId);
+    }
 
     elements.tunerView.hidden = !showTuner;
     elements.chordifyView.hidden = showTuner;
@@ -135,6 +145,19 @@
     }
   }
 
+  function mountYoutubePlayer(videoId) {
+    const embedUrl = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
+    embedUrl.searchParams.set("playsinline", "1");
+    embedUrl.searchParams.set("controls", "1");
+    embedUrl.searchParams.set("rel", "0");
+
+    elements.youtubePlayer.src = embedUrl.toString();
+    elements.youtubePlayer.title = `YouTube video player for video ${videoId}`;
+    elements.youtubeVideoId.textContent = `VIDEO ID · ${videoId}`;
+    elements.openYoutubeLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+    state.youtubeNeedsReload = false;
+  }
+
   function handleChordifySubmit(event) {
     event.preventDefault();
     const value = elements.youtubeUrl.value.trim();
@@ -152,15 +175,7 @@
 
     // Use YouTube's privacy-enhanced embed host. Playback remains inside
     // YouTube's official player and uses its native playback controls.
-    const embedUrl = new URL(`https://www.youtube-nocookie.com/embed/${videoId}`);
-    embedUrl.searchParams.set("playsinline", "1");
-    embedUrl.searchParams.set("controls", "1");
-    embedUrl.searchParams.set("rel", "0");
-
-    elements.youtubePlayer.src = embedUrl.toString();
-    elements.youtubePlayer.title = `YouTube video player for video ${videoId}`;
-    elements.youtubeVideoId.textContent = `VIDEO ID · ${videoId}`;
-    elements.openYoutubeLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+    mountYoutubePlayer(videoId);
 
     elements.chordifyForm.hidden = true;
     elements.chordifyPlayerCard.hidden = false;
@@ -171,6 +186,8 @@
 
   function handleChangeVideo() {
     // Stop and unload the previous embedded player when changing the song.
+    state.activeVideoId = null;
+    state.youtubeNeedsReload = false;
     elements.youtubePlayer.src = "about:blank";
     elements.chordifyPlayerCard.hidden = true;
     elements.chordifyForm.hidden = false;
