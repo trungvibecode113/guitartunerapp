@@ -19,8 +19,6 @@
     centsValue: $("#cents-value"),
     stringValue: $("#string-value"),
     permissionMessage: $("#permission-message"),
-    micButton: $("#mic-button"),
-    micButtonLabel: $("#mic-button-label"),
     micIndicator: $("#mic-indicator"),
     stringList: $("#string-list"),
     stringModeHint: $("#string-mode-hint"),
@@ -51,7 +49,9 @@
     autoCandidateIndex: -1,
     autoCandidateCount: 0,
     customNotes: ["E2", "A2", "D3", "G3", "B3", "E4"],
-    isRunning: false
+    isRunning: false,
+    isStarting: false,
+    audioUnlockHandler: null
   };
 
   const stringNames = ["LOW E", "A", "D", "G", "B", "HIGH E"];
@@ -62,6 +62,72 @@
   function setMessage(message, isError = false) {
     elements.permissionMessage.textContent = message;
     elements.permissionMessage.classList.toggle("error", isError);
+  }
+
+  function updateMicIndicator() {
+    const isOn = state.isRunning;
+    elements.micIndicator.classList.toggle("is-on", isOn);
+    elements.micIndicator.setAttribute("aria-pressed", String(isOn));
+    elements.micIndicator.setAttribute(
+      "aria-label",
+      isOn ? "Microphone on. Tap to stop listening." : "Microphone off. Tap to enable listening."
+    );
+    elements.micIndicator.title = isOn
+      ? "Microphone on · tap to stop"
+      : "Microphone off · tap to enable";
+    elements.micIndicator.innerHTML = `<i></i> MIC ${isOn ? "ON" : "OFF"}`;
+  }
+
+  function removeAudioUnlockListeners() {
+    if (!state.audioUnlockHandler) return;
+    window.removeEventListener("pointerdown", state.audioUnlockHandler, true);
+    window.removeEventListener("touchend", state.audioUnlockHandler, true);
+    window.removeEventListener("keydown", state.audioUnlockHandler, true);
+    state.audioUnlockHandler = null;
+  }
+
+  function startAudioProcessingIfReady() {
+    if (
+      !state.isRunning ||
+      !state.audioContext ||
+      state.audioContext.state !== "running" ||
+      state.animationId
+    ) return;
+
+    removeAudioUnlockListeners();
+    state.lastProcessTime = 0;
+    state.animationId = requestAnimationFrame(processAudio);
+    setMessage("Microphone is active. Play one string at a time and let the note ring.");
+  }
+
+  function installAudioUnlockListeners() {
+    if (state.audioUnlockHandler) return;
+
+    const unlock = () => {
+      const context = state.audioContext;
+      if (!state.isRunning || !context) {
+        removeAudioUnlockListeners();
+        return;
+      }
+
+      if (context.state === "running") {
+        startAudioProcessingIfReady();
+        return;
+      }
+
+      context.resume().then(() => {
+        if (state.audioContext === context && context.state === "running") {
+          startAudioProcessingIfReady();
+        }
+      }).catch((error) => {
+        console.warn("AudioContext is waiting for a user gesture:", error);
+      });
+    };
+
+    state.audioUnlockHandler = unlock;
+    window.addEventListener("pointerdown", unlock, true);
+    window.addEventListener("touchend", unlock, true);
+    window.addEventListener("keydown", unlock, true);
   }
 
   function buildPresetOptions() {
@@ -286,7 +352,10 @@
   }
 
   function processAudio(timestamp) {
-    if (!state.isRunning || !state.analyser || !state.buffer) return;
+    if (!state.isRunning || !state.analyser || !state.buffer || !state.audioContext || state.audioContext.state !== "running") {
+      state.animationId = null;
+      return;
+    }
     state.animationId = requestAnimationFrame(processAudio);
     if (timestamp - state.lastProcessTime < 75) return;
     state.lastProcessTime = timestamp;
@@ -315,13 +384,18 @@
   }
 
   async function startTuner() {
+    if (state.isRunning || state.isStarting) return;
+
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setMessage("Microphone access is not available here. Open this app on localhost or an HTTPS website using a supported browser.", true);
+      setMessage("Microphone access requires HTTPS or localhost and a supported browser. Tap MIC OFF to retry after opening a secure URL.", true);
+      updateMicIndicator();
       return;
     }
 
+    state.isStarting = true;
+    setMessage("Requesting microphone permission…");
+
     try {
-      setMessage("Requesting microphone permission…");
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
@@ -330,12 +404,12 @@
         }
       });
       state.stream = stream;
+
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (!AudioContextClass) throw new Error("This browser does not support the Web Audio API.");
 
       const audioContext = new AudioContextClass();
       state.audioContext = audioContext;
-      await audioContext.resume();
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 8192;
@@ -346,30 +420,56 @@
       state.analyser = analyser;
       state.buffer = new Float32Array(analyser.fftSize);
       state.isRunning = true;
+      state.isStarting = false;
       state.lastFrequency = null;
       state.lastProcessTime = 0;
-      elements.micButton.classList.add("is-running");
-      elements.micButtonLabel.textContent = "Stop tuning";
-      elements.micIndicator.classList.add("is-on");
-      elements.micIndicator.innerHTML = "<i></i> MIC ON";
-      setMessage("Microphone is active. Play one string at a time and let the note ring.");
+      resetAutoStringDetection(true);
+      updateMicIndicator();
       resetReadout();
-      state.animationId = requestAnimationFrame(processAudio);
+
+      audioContext.addEventListener("statechange", startAudioProcessingIfReady);
+      installAudioUnlockListeners();
+
+      // Try to begin immediately. iOS Safari may keep AudioContext suspended
+      // until the user makes a first touch, so the page listens for that gesture.
+      audioContext.resume().then(() => {
+        if (state.audioContext === audioContext && audioContext.state === "running") {
+          startAudioProcessingIfReady();
+        }
+      }).catch((error) => {
+        console.warn("AudioContext resume is waiting for user interaction:", error);
+      });
+
+      if (audioContext.state === "running") {
+        startAudioProcessingIfReady();
+      } else {
+        setMessage("Microphone permission granted. Tap anywhere once to activate live audio on this browser.");
+      }
     } catch (error) {
       console.error("Unable to start tuner:", error);
-      let message = "Could not access the microphone. Check browser permissions and try again.";
-      if (error && error.name === "NotAllowedError") message = "Microphone permission was denied. Allow microphone access in your browser settings, then try again.";
-      if (error && error.name === "NotFoundError") message = "No microphone was found. Connect or enable a microphone and try again.";
-      if (error && error.name === "NotReadableError") message = "The microphone is busy in another app. Close that app and try again.";
-      setMessage(message, true);
+      state.isStarting = false;
+      let message = "Could not access the microphone. Check browser permissions and tap MIC OFF to retry.";
+      if (error && error.name === "NotAllowedError") {
+        message = "Microphone permission was denied or requires a user action. Allow microphone access, then tap MIC OFF to retry.";
+      }
+      if (error && error.name === "NotFoundError") {
+        message = "No microphone was found. Connect or enable a microphone, then tap MIC OFF to retry.";
+      }
+      if (error && error.name === "NotReadableError") {
+        message = "The microphone is busy in another app. Close that app, then tap MIC OFF to retry.";
+      }
       await stopTuner();
+      setMessage(message, true);
     }
   }
 
   async function stopTuner() {
     state.isRunning = false;
+    state.isStarting = false;
     if (state.animationId) cancelAnimationFrame(state.animationId);
     state.animationId = null;
+    removeAudioUnlockListeners();
+
     if (state.stream) state.stream.getTracks().forEach((track) => track.stop());
     if (state.source) {
       try { state.source.disconnect(); } catch (_) { /* already disconnected */ }
@@ -377,6 +477,7 @@
     if (state.audioContext && state.audioContext.state !== "closed") {
       try { await state.audioContext.close(); } catch (_) { /* browser may already have closed it */ }
     }
+
     state.stream = null;
     state.source = null;
     state.analyser = null;
@@ -384,14 +485,12 @@
     state.buffer = null;
     state.lastFrequency = null;
     resetAutoStringDetection(true);
+    updateMicIndicator();
     renderStrings();
-    elements.micButton.classList.remove("is-running");
-    elements.micButtonLabel.textContent = "Start tuning";
-    elements.micIndicator.classList.remove("is-on");
-    elements.micIndicator.innerHTML = "<i></i> MIC OFF";
     resetReadout();
+
     if (!elements.permissionMessage.classList.contains("error")) {
-      setMessage("Tuner stopped. Start again when you are ready.");
+      setMessage("Microphone is off. Tap MIC OFF above to enable listening.");
     }
   }
 
@@ -497,7 +596,7 @@
       renderStrings(state.selectedString);
       if (state.lastFrequency) updatePitchUI(state.lastFrequency);
     });
-    elements.micButton.addEventListener("click", () => {
+    elements.micIndicator.addEventListener("click", () => {
       if (state.isRunning) stopTuner();
       else startTuner();
     });
@@ -524,8 +623,10 @@
     updateModeUI();
     updateTargetText();
     bindEvents();
-    setMessage("Allow microphone access to start tuning. Your audio is processed on this device.");
+    updateMicIndicator();
+    setMessage("Starting microphone automatically. Your audio is processed on this device.");
     console.info("Guitar Tuner initialized.");
+    startTuner();
   }
 
   init();
