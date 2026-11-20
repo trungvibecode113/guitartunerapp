@@ -38,7 +38,9 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--teal); out
 .brand strong { display: block; font-size: 14px; letter-spacing: -.3px; }
 .brand small { display: block; color: var(--muted-2); font-size: 7px; font-weight: 800; letter-spacing: 1.35px; margin-top: 2px; }
 .topbar-right { display: flex; align-items: center; gap: 11px; }
-.mic-indicator { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; }
+.mic-indicator { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.035); font-size: 9px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
+.mic-indicator:hover { border-color: rgba(56,224,207,.3); background: rgba(56,224,207,.06); }
+.mic-indicator:active { transform: scale(.98); }
 .mic-indicator i, .live-pill span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted-2); box-shadow: 0 0 0 4px rgba(128,145,157,.09); }
 .mic-indicator.is-on { color: var(--green); }
 .mic-indicator.is-on i { background: var(--green); box-shadow: 0 0 0 4px rgba(69,227,154,.12); }
@@ -134,13 +136,6 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--teal); out
 .readout strong small { color: var(--muted); font-size: 9px; font-weight: 550; }
 .permission-message { min-height: 28px; margin: 12px 18px 10px; color: #9296a0; font-size: 10px; line-height: 1.45; text-align: center; }
 .permission-message.error { color: #ff9c96; }
-.mic-button { display: flex; align-items: center; justify-content: center; gap: 10px; width: calc(100% - 28px); min-height: 49px; margin: 0 14px; border: 0; border-radius: 13px; color: #06201f; background: linear-gradient(100deg, #51ead9, #27cbbd); box-shadow: 0 9px 26px rgba(27,199,185,.14); font-size: 12px; font-weight: 850; letter-spacing: .1px; transition: transform .15s, filter .15s; }
-.mic-button:hover { filter: brightness(1.06); }
-.mic-button:active { transform: scale(.99); }
-.mic-button svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.button-arrow { margin-left: 4px; font-size: 18px; font-weight: 400; }
-.mic-button.is-running { color: #ffe3e1; background: linear-gradient(100deg, #a43f49, #7e3444); box-shadow: 0 9px 26px rgba(164,63,73,.16); }
-
 .app-footer { display: flex; justify-content: space-between; gap: 12px; padding: 14px 4px 0; color: #777b85; font-size: 8px; letter-spacing: .2px; }
 .app-footer b { color: var(--teal); padding: 0 3px; }
 
