@@ -120,8 +120,41 @@
             <span>Find chords</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
           </button>
-          <p class="chordify-helper">Paste a YouTube video URL to prepare a song analysis.</p>
+          <p class="chordify-helper">Paste a YouTube link to load the song player. Chord recognition will be added later.</p>
         </form>
+
+        <section id="chord-player-card" class="chord-player-card" hidden aria-label="YouTube song player">
+          <div class="chord-player-heading">
+            <div>
+              <p class="section-kicker">NOW PLAYING</p>
+              <h2>Your YouTube song</h2>
+              <p id="youtube-video-id" class="youtube-video-id">VIDEO —</p>
+            </div>
+            <button id="change-video-button" class="change-video-button" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 4H4v3m13 13h3v-3M7 20l-3-3"/></svg>
+              Change
+            </button>
+          </div>
+
+          <div class="youtube-player-frame">
+            <iframe
+              id="youtube-player"
+              title="YouTube video player"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+
+          <div class="youtube-player-footer">
+            <span class="youtube-source-label"><i></i> YOUTUBE PLAYER</span>
+            <a id="open-youtube-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">
+              Open on YouTube ↗
+            </a>
+          </div>
+          <p class="youtube-player-hint">Use the YouTube controls to play, pause, seek and enter fullscreen. Some videos do not allow embedding.</p>
+        </section>
 
         <section class="chord-results-card" aria-labelledby="chord-results-title">
           <div class="chord-results-heading">
