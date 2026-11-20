@@ -1,4 +1,4 @@
-const CACHE_NAME = "guitar-tuner-v5";
+const CACHE_NAME = "guitar-tuner-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
